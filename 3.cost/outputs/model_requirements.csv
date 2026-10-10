@@ -1,0 +1,11 @@
+model,dimension,actual_score,requirement_score,status
+gpt-4o,quality,0.95,Above 0.8,pass
+gpt-4o,latency,500.0,Below 700 ms,pass
+gpt-4o,hallucination,0.04,Below 0.08,pass
+gpt-4o,input_cost,2.5,Below $3.0 per 1M input req,pass
+gpt-4o,output_cost,10.0,Below $7.0 per 1M output req,fail
+gpt-4o-mini,quality,0.88,Above 0.8,pass
+gpt-4o-mini,latency,600.0,Below 700 ms,pass
+gpt-4o-mini,hallucination,0.07,Below 0.08,pass
+gpt-4o-mini,input_cost,0.15,Below $3.0 per 1M input req,pass
+gpt-4o-mini,output_cost,0.6,Below $7.0 per 1M output req,pass

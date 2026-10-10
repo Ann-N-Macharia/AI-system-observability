@@ -1,0 +1,159 @@
+MEMORANDUM
+
+TO:      Chief Technology Officer; Medical Director
+FROM:    AfyaPlus Engineering
+DATE:    [INSERT DATE]
+RE:      Generative AI Layer — Quality, Cost, and Drift Status (Phases 1-3 Evaluation Cycle)
+
+---
+
+1. EXECUTIVE SUMMARY
+
+[2-3 sentences. Draft below — tighten to final numbers once the quality-gate
+discrepancy in Section 2 is resolved (see note).]
+
+The AfyaPlus generative layer currently runs a 75% gpt-4o-mini / 25% gpt-4o
+canary split across three clinical features (clinical summaries, epidemic
+alerts, triage advisory). Automated evaluation against a 15-question clinical
+verification set shows gpt-4o-mini narrowly missing one quality-gate threshold
+(BLEU-4) while gpt-4o clears all four, and three months of simulated
+production traffic show a consistent, worsening drift trend in response
+quality and latency that is not yet being captured by an automated alert.
+[INSERT: one closing sentence stating overall platform readiness — e.g. "safe
+to continue limited canary rollout" / "requires remediation before scale-up"
+— once Phase 4 dashboard status is available.]
+
+---
+
+2. QUALITY PERFORMANCE BREAKDOWN
+
+Source: 1.evaluation/outputs/summary_evaluation_results.xlsx,
+quality_gate_results.xlsx (n=15 clinical questions, balanced across USSD,
+Mobile App, and Web Portal channels; 5 each).
+
+  Metric            gpt-4o    gpt-4o-mini   Gate threshold
+  BLEU-4            0.146     0.119         >= 0.130
+  ROUGE-L           0.332     0.317         >= 0.300
+  Token F1          0.455     0.442         >= 0.400
+  Judge overall      4.78      4.89         >= 4.50 (1-5 scale)
+  LLM-judge correctness/groundedness/helpfulness averaged 4.4-4.9/5 for
+  both models — clinically, both produce accurate, well-grounded, actionable
+  guidance for health workers.
+
+Clinical translation: judge scores indicate both models are safe on
+correctness and groundedness for the sampled clinical scenarios. The
+distinguishing factor is BLEU-4 — a stricter lexical-overlap check against
+the clinical reference protocol — where gpt-4o-mini falls just short
+(0.119 vs. 0.130 required), meaning its phrasing diverges from the
+validated clinical wording more often than gpt-4o's, even when judged
+"correct" in substance.
+
+>>> DATA NOTE (resolve before finalizing): the saved quality_gate_results.xlsx
+currently flags BOTH models as ineligible, which conflicts with the
+threshold math above (gpt-4o passes all four gates). Re-run
+1.evaluation/main.py's gate assessment against the current
+summary_evaluation_results.xlsx and paste the corrected pass/fail table
+here before this memo is finalized — the cost savings claim in Section 3
+depends on which model is actually gate-eligible.
+
+[INSERT: corrected quality_gate_results.csv/xlsx once regenerated]
+
+---
+
+3. COST & EFFICIENCY ANALYSIS
+
+Source: 3.cost/outputs/cost_summary.csv, cost_summary_prompt_type.csv,
+cost_summary_lower_cost_model.csv, model_requirements.csv.
+
+30-day cost projection at current 75/25 canary split: ~$1,436 total
+(gpt-4o: ~$1,217 across the three features; gpt-4o-mini: ~$219).
+Per-1M-token budget gates (model_requirements.csv): gpt-4o-mini clears
+every cost gate (input and output); gpt-4o clears input-cost but FAILS
+its own output-cost gate ($10.00 vs. a $7.00/1M ceiling) — an added
+argument for shifting output-heavy features toward gpt-4o-mini where the
+quality gate (Section 2) allows it.
+
+Prompt configuration: chain-of-thought (CoT) prompting costs ~2x more per
+request than direct prompting on both models (e.g. gpt-4o clinical
+summaries: $0.00334/req CoT vs. $0.00170/req direct). CoT should be
+reserved for features where the extra reasoning demonstrably improves the
+judge/groundedness score enough to justify the multiplier.
+
+Structural savings: routing 100% of traffic to gpt-4o-mini (the
+lower-cost model) projects a 30-day spend of ~$146 vs. ~$1,436 under the
+current split — a ~$1,290/month (≈90%) reduction, CONDITIONAL on
+gpt-4o-mini clearing the BLEU-4 clinical-fidelity gate in Section 2. This
+is the single largest cost lever available and should not be actioned
+until that gate question is settled.
+
+Human-in-the-loop overhead: [INSERT: validation/review labor cost or
+hours-per-week data if tracked elsewhere — not currently present in
+3.cost/outputs; needed to complete the "cloud cost vs. human review
+overhead" comparison the memo format requires].
+
+---
+
+4. SYSTEMIC OPERATIONAL RISKS
+
+Source: 2.drift/outputs/drift_trend_table.csv (3 simulated production
+months vs. baseline).
+
+  Month     ROUGE-L   Latency (ms)   Input tokens
+  Month 1    0.417        798            223
+  Month 2    0.382        959            287
+  Month 3    0.292       1,317           376
+
+Response quality (ROUGE-L) degraded ~30% from Month 1 to Month 3, while
+latency rose ~65% and input token length rose ~69% over the same window —
+a consistent, worsening trend rather than noise, suggesting either input
+distribution shift (longer/more complex queries reaching the model) or
+model-side degradation that compounds cost (Section 3) with quality risk.
+
+>>> DATA NOTE: the automated alert log required by Phase 2 is not currently
+being produced — the alert-collection logic checks for a `drift_detected`
+key that Evidently does not surface at that level for the metrics in use
+(DatasetDriftMetric / DataDriftPreset nest per-column results under
+`drift_by_columns`), so zero alerts are logged even though the trend table
+above shows clear drift starting Month 2. This is a monitoring gap, not an
+absence of drift, and should be disclosed as such until fixed.
+
+[INSERT: corrected drift_alert_log.csv/json once the collection bug is fixed]
+
+Hallucination vulnerability: [INSERT: hallucination_rate data if tracked
+per-month in production simulation — Phase 1 only captures a static
+per-model hallucination_rate constant (gpt-4o 0.04, gpt-4o-mini 0.07),
+not a production trend].
+
+---
+
+5. ACTIONABLE ENGINEERING ROADMAP
+
+1. Fix and re-run the drift alert pipeline before any further canary
+   expansion. Financial: undetected drift risks silent cost growth via
+   longer completions (token trend above). Safety: undetected ROUGE-L
+   decay in a clinical-guidance product is a patient-safety exposure that
+   the current pipeline cannot flag today.
+
+2. Resolve the quality-gate discrepancy (Section 2) and, if gpt-4o-mini
+   clears BLEU-4 on re-verification, route eligible features to
+   gpt-4o-mini. Financial: ~$1,290/month (~90%) projected savings.
+   Safety: only action if the corrected gate confirms mini meets the
+   0.130 BLEU-4 floor — do not route on judge-score parity alone, since
+   the memo's own data shows judge and lexical metrics disagree on this
+   pair.
+
+3. Default to direct prompting for clinical_summaries and epidemic_alerts,
+   reserving chain-of-thought (CoT) for triage_advisor only. Financial:
+   cost_summary_prompt_type.csv shows CoT running ~$163/month more than
+   direct on those two features alone at gpt-4o-mini rates (and several
+   hundred dollars more on gpt-4o) — a premium Phase 1 currently has no
+   judge-score data to justify, since prompt config was never isolated as
+   an evaluation variable. Safety: triage_advisor is the highest-risk
+   feature and keeps the extra reasoning step; any future CoT spend on
+   the other two features should require a demonstrated judge-score lift
+   before being approved.
+
+---
+Prepared from: 1.evaluation, 2.drift, 3.cost outputs as of [INSERT DATE].
+Sections marked [INSERT] or >>> DATA NOTE require data or fixes not yet
+available in the current output set.

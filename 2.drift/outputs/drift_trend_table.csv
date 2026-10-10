@@ -1,0 +1,4 @@
+,measure,month_1,month_2,month_3
+0,rouge_l,0.417,0.382,0.292
+1,latency_ms,798.4,959.38,1317.285
+2,token_count,222.77,286.82,376.09

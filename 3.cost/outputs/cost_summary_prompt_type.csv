@@ -1,0 +1,13 @@
+model,feature,Requests_Audited,Sample_Cost_USD,Projected_7d_USD,Projected_30d_USD
+gpt-4o,clinical_summaries_cot,1575,5.26374,263.19,1127.96
+gpt-4o,clinical_summaries_direct,1575,2.6717025,133.59,572.53
+gpt-4o,epidemic_alerts_cot,2625,7.46113,373.06,1598.83
+gpt-4o,epidemic_alerts_direct,2625,3.7107,185.54,795.17
+gpt-4o,triage_advisor_cot,840,3.9836675,199.18,853.63
+gpt-4o,triage_advisor_direct,840,2.131205,106.56,456.69
+gpt-4o-mini,clinical_summaries_cot,4725,0.9471297,47.36,202.97
+gpt-4o-mini,clinical_summaries_direct,4725,0.47900655,23.95,102.64
+gpt-4o-mini,epidemic_alerts_cot,7875,1.3432977,67.16,287.83
+gpt-4o-mini,epidemic_alerts_direct,7875,0.6699207,33.5,143.57
+gpt-4o-mini,triage_advisor_cot,2520,0.71572995,35.79,153.39
+gpt-4o-mini,triage_advisor_direct,2520,0.38646345,19.32,82.8

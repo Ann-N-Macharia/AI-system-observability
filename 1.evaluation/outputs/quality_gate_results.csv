@@ -1,0 +1,9 @@
+model,dimension,actual_score,requirement_score,status
+gpt-4o,bleu_4,0.148,0.13,pass
+gpt-4o,rouge_l,0.326,0.3,pass
+gpt-4o,token_f1,0.44,0.4,pass
+gpt-4o,judge_overall,4.82,4.5,pass
+gpt-4o-mini,bleu_4,0.119,0.13,fail
+gpt-4o-mini,rouge_l,0.313,0.3,pass
+gpt-4o-mini,token_f1,0.444,0.4,pass
+gpt-4o-mini,judge_overall,4.84,4.5,pass

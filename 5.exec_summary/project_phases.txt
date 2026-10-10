@@ -1,0 +1,29 @@
+Required Engineering Phases
+Phase 1: Clinical Evaluation Pipeline (25 marks)
+Build and run a complete evaluation pipeline against a 15-question clinical verification dataset. Both gpt-4o-mini and gpt-4o must be tested. Your script must output:
+
+Raw Metrics Log: CSV with row-by-row validation data (BLEU, ROUGE-L, Token F1)
+LLM-as-a-Judge Matrix: correctness, groundedness, relevance, helpfulness, and overall alignment
+Model Comparison Aggregation: mean scores grouped per model across three clinical features
+Quality Gate Assessment: pass/fail log mapping models against predefined clinical safety thresholds
+Task: Extend evaluation_data.py to 15 questions (10 additional). Balance across USSD, Mobile App, and Web Portal channels. Pair each question with a high-quality clinical_reference answer.
+
+Phase 2: Statistical Drift Detection (20 marks)
+Simulate three months of production traffic through the AfyaPlus backend. Build and run monthly Evidently AI drift reports. Output:
+
+Three HTML Reports: Month 1, Month 2, Month 3 interactive Evidently AI snapshots
+Drift Trend Table: monthly means of ROUGE-L, latency_ms, and input token length
+Automated Alert Log: machine-readable log flagging the exact month and column that first drifted
+Phase 3: Token Cost & Efficiency Analysis (20 marks)
+Simulate 30 days of production payload volumes (75% gpt-4o-mini / 25% gpt-4o canary split). Produce:
+
+30-Day Cost Projections: spend by model and by clinical feature
+Cost-Per-Request Comparison: gpt-4o-mini vs. gpt-4o across prompt configurations
+Structural Savings Analysis: dollar reduction from routing to the lowest-cost model that clears quality gates
+Phase 4: FastAPI Web Dashboard (20 marks)
+Build a unified monitoring console using FastAPI that serves a dynamic web-view with four mandatory data sections:
+
+System Health: live service status (UP/DOWN) and exception counts
+Feature Quality Matrix: quality scores per feature and current model routing
+Drift Vector Status: summary table of the current month's drift report
+Budget Capital Utilisation: progress bars tracking spend against daily and monthly caps

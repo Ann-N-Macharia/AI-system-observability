@@ -1,0 +1,4 @@
+model,feature,Requests_Audited,Sample_Cost_USD,Projected_7d_USD,Projected_30d_USD
+gpt-4o-mini,clinical_summaries,4200,0.42636975,21.32,91.37
+gpt-4o-mini,epidemic_alerts,7000,0.597315,29.87,128.01
+gpt-4o-mini,triage_advisor,2240,0.34138935,17.07,73.16
